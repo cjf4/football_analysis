@@ -1,5 +1,6 @@
 require("RPostgreSQL")
 library(stringr)
+library(dplyr)
 
 pw <- "1bomber3"
 
@@ -14,10 +15,12 @@ con <- dbConnect(drv, dbname = "nfldb",
 #if true, we are good to go
 dbExistsTable(con, "meta")
 
+#2 queries getting comfortable with the data model
+
 first_plays <- dbGetQuery(con, "SELECT gsis_id FROM play_player GROUP BY gsis_id ORDER BY gsis_id LIMIT 1000 ")
 
 
-game1_plays <- dbGetQuery(con, "SELECT gsis_id, 
+example2 <- dbGetQuery(con, "SELECT gsis_id, 
                                        drive_id, 
                                        play_id, 
                                         time, 
@@ -128,5 +131,22 @@ game1_plays$home_score <- rep(0,length(game1_plays$play_id))
 #rushing_tds
 #rushing_twoptm
 
+g1_plays <-game1_plays %>%
+              left_join(scoring_plays, by = "play_id")
 
 
+drives <- dbGetQuery(con, 
+                          "SELECT gsis_id, drive_id, pos_team, result 
+                          FROM drive
+                          WHERE gsis_id = '2012011501'
+                          ORDER BY drive_id")
+
+game_info <- dbGetQuery(con,
+                          "SELECT gsis_id, home_team, away_team, home_score, away_score
+                          FROM game
+                          WHERE gsis_id = '2012011501'")
+
+
+#next, i need to assign each possesion a 
+
+head(g1_plays)
