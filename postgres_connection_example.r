@@ -99,14 +99,15 @@ seconds_passed <- function (gametime) {
   
   return(seconds + (prev_q_seconds))
 }
-g1_times <- unlist(lapply(game1_plays$time, seconds_passed))
+game1_plays$game_secs <- unlist(lapply(game1_plays$time, seconds_passed))
 
 #remove parenthesis and convert field position to numeric
 field_position <- function (yardline) {
   return(as.numeric(str_extract(yardline, "[^()]+")))
 }
 
-g1_field_positions <- unlist(lapply(game1_plays$yardline, field_position))
+game1_plays$field_pos <- unlist(lapply(game1_plays$yardline, field_position))
+
 
 #instatiate 0 score vectors for home and away
 game1_plays$away_score <- rep(0,length(game1_plays$play_id))
@@ -131,7 +132,7 @@ game1_plays$home_score <- rep(0,length(game1_plays$play_id))
 #rushing_tds
 #rushing_twoptm
 
-g1_plays <-game1_plays %>%
+g1_plays <- game1_plays %>%
               left_join(scoring_plays, by = "play_id")
 
 
@@ -147,6 +148,28 @@ game_info <- dbGetQuery(con,
                           WHERE gsis_id = '2012011501'")
 
 
-#next, i need to assign each possesion a 
+#write a function that calculates the score
 
-head(g1_plays)
+#note: possession on kicking plays is the team that is kicking
+
+#total all scores for non possessing team
+def_play_score <- function (play) {
+  return( play$d_fum_td + 
+          play$d_int_t + 
+          play$d_misc_td + 
+          play$d_safe + 
+          play$kick_ret_td + 
+          play$punt_ret_td)
+}
+
+#total all scores for possesing team
+off_play_score <- function (play) {
+  return( play$fum_td +
+          play$fgm + 
+          play$xp +
+          play$pass_td +
+          play$pass_twopt +
+          play$rush_td +
+          play$rush_twopt)
+}
+
