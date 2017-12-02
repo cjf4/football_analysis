@@ -162,7 +162,7 @@ def_play_score <- function (play) {
           play$punt_ret_td)
 }
 
-#total all scores for possesing team
+#total marill scores for possesing team
 off_play_score <- function (play) {
   return( play$fum_td +
           play$fgm + 
@@ -172,4 +172,39 @@ off_play_score <- function (play) {
           play$rush_td +
           play$rush_twopt)
 }
+
+#function that iterates through play dataframe and cumulatively sums the score
+#dataframe must be for single game
+#not working right now, need to output arrays and append them to the df outside the function
+scorer <- function(plays, home_team, away_team) {
+  return_df = plays
+  home_score = 0
+  away_score = 0
+  return_df$home_score[1] = home_score
+  return_df$away_score[1] = away_score
+  for (i in 1:nrow(return_df)) { 
+    if (i < nrow(return_df)) {
+      if (return_df[i,"pos_team"] == home_team) {
+        
+        home_score = home_score + off_play_score(return_df[i,])
+        away_score = away_score + def_play_score(return_df[i,])
+        
+      } else {
+        
+        home_score = home_score + def_play_score(return_df[i,])
+        away_score = away_score + off_play_score(return_df[i,])
+
+      }
+      return_df$home_score[i+1] = home_score
+      return_df$away_score[i+1] = away_score
+      
+    }
+  }
+  return(return_df)
+}
+
+home_team = "GB"
+away_team = "NYG"
+
+scorer(g1_plays, "GB", "NYG")
 
