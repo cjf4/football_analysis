@@ -60,7 +60,8 @@ drives <- function(con, game_id) {
 
 game_info <- function(con, game_id) {
   dbGetQuery(con, paste0(
-             "SELECT gsis_id, home_team, away_team, home_score, away_score
+             "SELECT gsis_id, home_team, away_team, home_score, away_score,
+                      season_type, season_year, week, day_of_week, start_time
                           FROM game
                           WHERE gsis_id = '",game_id,"'"))
 }
@@ -139,20 +140,11 @@ scorer <- function(plays, home_team, away_team) {
   return(return_df)
 }
 
-
-#2-These are function calls that need to happen in the context of the master
-#function on the game plays dataframe
-
-#after seconds_passed()
-game1_plays$game_secs <- unlist(lapply(game1_plays$time, seconds_passed))
-
-#after field_position()
-game1_plays$field_pos <- unlist(lapply(game1_plays$yardline, field_position))
-
-#add two empty columns representing home and away score
-game1_plays$away_score <- rep(0,length(game1_plays$play_id))
-game1_plays$home_score <- rep(0,length(game1_plays$play_id))
-
+#returns 1 if the home team won, 0 if not
+home_winner <- function(game_id) {
+  game_data <- game_info(con, game_id)
+  if (game_data$home_score > game_data$away_score) {return(1)} else {return(0)}
+}
 
 #"master" function: takes a NFLDB connection and game_id and  returns relevant 
 #play data prepared for Win Probability model fitting
@@ -173,6 +165,8 @@ game_play_features <- function(con, game_id) {
   plays$home_score <- rep(0,length(plays$play_id))
   
   
+  plays$home_win <- rep(home_winner(game_id), length(plays$play_id))
+  
   plays <- scorer(plays, game_info$home_team, game_info$away_team)
   
   return(plays[,c("gsis_id",
@@ -184,9 +178,15 @@ game_play_features <- function(con, game_id) {
                   "game_secs",
                   "field_pos",
                   "home_score",
-                  "away_score")])
+                  "away_score",
+                  "home_win")])
 }
 
 ## To Do:
-#switch out GB and NYG
-#trim down return dataframe
+#DONE switch out GB and NYG
+#DONE trim down return dataframe
+#DONE add target variable (home team win/loss) to game_play_features
+#write function to pull all non preseason, non tie games
+#split into train/test sets
+#train model
+#cross validate
