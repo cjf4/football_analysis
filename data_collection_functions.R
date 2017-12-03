@@ -182,11 +182,24 @@ game_play_features <- function(con, game_id) {
                   "home_win")])
 }
 
-## To Do:
-#DONE switch out GB and NYG
-#DONE trim down return dataframe
-#DONE add target variable (home team win/loss) to game_play_features
-#write function to pull all non preseason, non tie games
-#split into train/test sets
-#train model
-#cross validate
+#creates a list from "game" table of all non preseason, non tie games, non
+#overtime games prior to 2017
+game_list_query <- function(con) {
+  dbGetQuery(con,
+                  "SELECT gsis_id, 
+                          home_team, 
+                          away_team, 
+                          home_score, 
+                          away_score,
+                          season_type, 
+                          season_year, 
+                          week, 
+                          day_of_week, 
+                          start_time
+                   FROM game 
+                   WHERE season_type != 'Preseason' AND
+                         home_score != away_score AND
+                         home_score_q5 = 0 AND
+                         away_score_q5 = 0 AND
+                         season_year < 2017;")
+}
