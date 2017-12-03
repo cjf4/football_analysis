@@ -2,10 +2,12 @@ require("RPostgreSQL")
 library(stringr)
 library(dplyr)
 
+#REQUIRES ACTIVE CONNECTION TO NFLDB POSTGRES DATABASE TO WORK
+
 #1-sub functions
 #functions used by "master" function to delegate tasks
 
-scoring_plays <- function(game_id) {
+scoring_plays <- function(con, game_id) {
         dbGetQuery(con, paste0("
                   SELECT gsis_id, 
                          play_id, 
@@ -30,7 +32,7 @@ scoring_plays <- function(game_id) {
 
 }
 
-game_plays <- function(game_id){
+game_plays <- function(con, game_id){
   dbGetQuery(con, paste0("SELECT  
                             play.gsis_id, 
                             play.drive_id, 
@@ -46,6 +48,21 @@ game_plays <- function(game_id){
                                 play.timeout != 1 AND 
                                 play.pos_team != 'UNK'
                           ORDER BY play.play_id"))
+}
+
+drives <- function(con, game_id) {
+  dbGetQuery(con, paste0( 
+             "SELECT gsis_id, drive_id, pos_team, result 
+                          FROM drive
+                          WHERE gsis_id = '",game_id,"'
+                          ORDER BY drive_id"))
+}
+
+game_info <- function(con, game_id) {
+  dbGetQuery(con, paste0(
+             "SELECT gsis_id, home_team, away_team, home_score, away_score
+                          FROM game
+                          WHERE gsis_id = '",game_id,"'"))
 }
 
 seconds_passed <- function (gametime) {
@@ -135,3 +152,41 @@ game1_plays$field_pos <- unlist(lapply(game1_plays$yardline, field_position))
 #add two empty columns representing home and away score
 game1_plays$away_score <- rep(0,length(game1_plays$play_id))
 game1_plays$home_score <- rep(0,length(game1_plays$play_id))
+
+
+#"master" function: takes a NFLDB connection and game_id and  returns relevant 
+#play data prepared for Win Probability model fitting
+
+game_play_features <- function(con, game_id) {
+  scoring_plays <- scoring_plays(con, game_id)
+  game_plays <- game_plays(con, game_id )
+  drives <- drives(con, game_id)
+  game_info <- game_info(con, game_id)
+  
+  plays <- game_plays %>%
+            left_join(scoring_plays)
+  
+  plays$game_secs <- unlist(lapply(plays$time, seconds_passed))
+  plays$field_pos <- unlist(lapply(plays$yardline, field_position))
+  
+  plays$away_score <- rep(0,length(plays$play_id))
+  plays$home_score <- rep(0,length(plays$play_id))
+  
+  
+  plays <- scorer(plays, game_info$home_team, game_info$away_team)
+  
+  return(plays[,c("gsis_id",
+                  "drive_id",
+                  "play_id",
+                  "pos_team",
+                  "down",
+                  "yards_to_go",
+                  "game_secs",
+                  "field_pos",
+                  "home_score",
+                  "away_score")])
+}
+
+## To Do:
+#switch out GB and NYG
+#trim down return dataframe
