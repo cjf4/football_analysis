@@ -99,6 +99,7 @@ seconds_passed <- function (gametime) {
   
   return(seconds + (prev_q_seconds))
 }
+
 game1_plays$game_secs <- unlist(lapply(game1_plays$time, seconds_passed))
 
 #remove parenthesis and convert field position to numeric
@@ -162,7 +163,7 @@ def_play_score <- function (play) {
           play$punt_ret_td)
 }
 
-#total marill scores for possesing team
+#total all scores for possesing team
 off_play_score <- function (play) {
   return( play$fum_td +
           play$fgm + 
@@ -175,7 +176,6 @@ off_play_score <- function (play) {
 
 #function that iterates through play dataframe and cumulatively sums the score
 #dataframe must be for single game
-#not working right now, need to output arrays and append them to the df outside the function
 scorer <- function(plays, home_team, away_team) {
   return_df = plays
   home_score = 0
@@ -206,5 +206,15 @@ scorer <- function(plays, home_team, away_team) {
 home_team = "GB"
 away_team = "NYG"
 
-scorer(g1_plays, "GB", "NYG")
+g1_train <- scorer(g1_plays, "GB", "NYG")
+
+
+#next steps
+
+#pull all these functions together so that i can:
+#call 1 function with a game number and have that function return
+#all the plays in that game formatted and ready for model training
+
+
+
 
