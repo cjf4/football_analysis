@@ -1,6 +1,7 @@
 source('~/cuny_masters/DATA_698/data_collection_functions.R')
 source('~/cuny_masters/DATA_698/secret.r')
 require("RPostgreSQL")
+require("dplyr")
 
 drv <- dbDriver("PostgreSQL")
 con <- dbConnect(drv, dbname = "nfldb",
@@ -15,7 +16,14 @@ for (i in 2:length(game_list$gsis_id)) {
   game_data <- rbind(game_data, game_play_features(con, game_list$gsis_id[i]))
 }
 
-x <- length(game_list$gsis_id)
+game_data <- left_join(game_data, select(game_list, gsis_id,
+                                                      home_team,
+                                                      away_team,
+                                                      season_type,
+                                                      season_year,
+                                                      week,
+                                                      day_of_week))
+write.csv(game_data, "game_data.csv")
 #DEBUGGING NA issue with scoring values
 #game_id <- 2017010115
 
