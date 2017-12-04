@@ -6,6 +6,26 @@ drv <- dbDriver("PostgreSQL")
 con <- dbConnect(drv, dbname = "nfldb",
                  host = "localhost", port = 5432,
                  user = user, password = pw)
+
+game_list <- game_list_query(con)
+
+#for (i in 1:length(game_list$gsis_id)) {
+#  print(game_list$gsis_id[i])
+#}
+
+
+game_id <- 2017010115
+
+scoring_plays <- scoring_plays(con, game_id)
+game_plays <- game_plays(con, game_id )
+drives <- drives(con, game_id)
+game_info <- game_info(con, game_id)
+
+plays <- game_plays %>%
+  left_join(scoring_plays)
+
+plays <- scoring_NA_to_0(plays)
+
 ## To Do:
 #DONE switch out GB and NYG
 #DONE trim down return dataframe

@@ -93,7 +93,7 @@ field_position <- function (yardline) {
 #total all scores for non possessing team
 def_play_score <- function (play) {
   return( play$d_fum_td + 
-            play$d_int_t + 
+            play$d_int_td + 
             play$d_misc_td + 
             play$d_safe + 
             play$kick_ret_td + 
@@ -108,7 +108,8 @@ off_play_score <- function (play) {
             play$pass_td +
             play$pass_twopt +
             play$rush_td +
-            play$rush_twopt)
+            play$rush_twopt +
+            play$fum_td)
 }
 
 #scorer terates through play dataframe and cumulatively sums the score
@@ -146,6 +147,27 @@ home_winner <- function(game_id) {
   if (game_data$home_score > game_data$away_score) {return(1)} else {return(0)}
 }
 
+#replace scoring NAs with 0
+
+scoring_NA_to_0 <- function(plays) {
+    plays$d_fum_td <- replace(plays$d_fum_td, is.na(plays$d_fum_td), 0)
+    plays$d_int_td <- replace(plays$d_int_td, is.na(plays$d_int_td), 0)  
+    plays$d_misc_td <- replace(plays$d_misc_td, is.na(plays$d_misc_td), 0)
+    plays$d_safe <- replace(plays$d_safe, is.na(plays$d_safe), 0)
+    plays$kick_ret_td <- replace(plays$kick_ret_td, is.na(plays$kick_ret_td), 0)
+    plays$punt_ret_td <- replace(plays$punt_ret_td, is.na(plays$punt_ret_td), 0)
+    
+    plays$fgm <- replace(plays$fgm, is.na(plays$fgm), 0)
+    plays$xp <- replace(plays$xp, is.na(plays$xp), 0)
+    plays$pass_td <- replace(plays$pass_td, is.na(plays$pass_td), 0)
+    plays$pass_twopt <- replace(plays$pass_twopt, is.na(plays$pass_twopt), 0)
+    plays$rush_td <- replace(plays$rush_td, is.na(plays$rush_td), 0)
+    plays$rush_twopt <- replace(plays$rush_twopt, is.na(plays$rush_twopt), 0)
+    plays$fum_td <- replace(plays$fum_td, is.na(plays$fum_td), 0)
+    return(plays)
+}
+
+
 #"master" function: takes a NFLDB connection and game_id and  returns relevant 
 #play data prepared for Win Probability model fitting
 
@@ -157,6 +179,8 @@ game_play_features <- function(con, game_id) {
   
   plays <- game_plays %>%
             left_join(scoring_plays)
+  
+  plays <- scoring_NA_to_0(plays)
   
   plays$game_secs <- unlist(lapply(plays$time, seconds_passed))
   plays$field_pos <- unlist(lapply(plays$yardline, field_position))
@@ -203,3 +227,16 @@ game_list_query <- function(con) {
                          away_score_q5 = 0 AND
                          season_year < 2017;")
 }
+
+
+
+## To Do:
+#DONE switch out GB and NYG
+#DONE trim down return dataframe
+#DONE add target variable (home team win/loss) to game_play_features
+#DONEwrite function to pull all non preseason, non tie games
+#write function to call game_play_features() on each game from 09-16,
+  #and add to one big data set
+#split into train/test sets
+#train model
+#cross validate
