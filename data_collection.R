@@ -44,7 +44,7 @@ write.csv(game_data, "game_data.csv")
 #DONE write function to pull all non preseason, non tie games
 #DONE write code to call game_play_features() on each game from 09-16,
 #DONE and add to one big data set
-#add game demographic info from game info so that the data 
+#DONE add game demographic info from game info so that the data 
       #can be subsetted by year season type, etc
 #do some visualizations
 #split into train/test sets

@@ -1,0 +1,57 @@
+---
+title: "nfl_data_exploratory_analysis"
+output: html_document
+---
+```{r warning=FALSE}
+library(ggplot2)
+library(dplyr)
+```
+
+
+```{r}
+nfl_data <- read.csv("game_data.csv")
+```
+
+```{r}
+head(nfl_data)
+```
+
+
+
+We can take a look at how field position is distributed.
+
+
+```{r}
+ggplot(data=nfl_data, aes(field_pos)) + 
+  geom_histogram(breaks = seq(-50,50, by = 1),
+                 col = "blue",
+                 fill = "orange",
+                 alpha = .8)
+```
+The center of the distribution appears around the 30 yard line, with some spikes for designated field positions, such as kick off location, touchback location, and PAT location. 
+
+```{r}
+ggplot(data=nfl_data, aes(game_secs)) + 
+  geom_histogram(col = "blue",
+                 fill = "orange",
+                 alpha = .8)
+```
+Finally, let's look at the score differential distribution.
+
+```{r}
+score_dif <- abs(nfl_data$home_score - nfl_data$away_score)
+qplot(score_dif, geom="histogram",
+      binwidth = 1,
+      xlab = "score differential",
+      fill = I("orange"),
+      col = I("blue"),
+      alpha = I(0.8))
+
+
+ggplot() + geom_histogram(aes(x=score_dif), 
+                          breaks = seq(-1,30, by = 1),
+                          col = "blue",
+                          fill = "orange",
+                          alpha = 0.8) +
+  scale_x_continuous(breaks = seq(-1,30, by =1))
+```
