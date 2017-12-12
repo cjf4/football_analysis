@@ -5,11 +5,12 @@ output: html_document
 ```{r warning=FALSE}
 library(ggplot2)
 library(dplyr)
+
 ```
 
 
 ```{r}
-nfl_data <- read.csv("game_data.csv")
+nfl_data <- read.csv("data/game_data.csv")
 ```
 
 ```{r}

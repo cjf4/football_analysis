@@ -5,13 +5,14 @@ date: "December 10, 2017"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+```{r}
 library(ggplot2)
 library(dplyr)
 library(randomForest)
 library(tree)
+setwd(getwd())
 
-nfl_data <- read.csv("game_data.csv", stringsAsFactors = FALSE)
+nfl_data <- read.csv("data/game_data.csv", stringsAsFactors = FALSE)
 
 filter(nfl_data, is.na(home_score))
 nfl_data <- nfl_data[-114849,]
@@ -47,13 +48,38 @@ test <- filter(nfl_data, season_year == 2016)
 
 
 ```{r}
-offense_win <- offense_win ~ down+ yards_to_go+ game_secs+ field_pos+ home_score+ away_score+ home_posession
+offense_win_formula <- offense_win ~ down+ yards_to_go+ game_secs+ field_pos+ home_score+ away_score+ home_posession
 home_win <- home_win ~ down+ yards_to_go+ game_secs+ field_pos+ home_score+ away_score+ home_posession
 
-tree_model <- tree(offense_win, data = train)
+tree_model <- tree(offense_win_formula, data = train)
+plot(tree_model)
+text(tree_model)
 
-binlog_model <- glm(offense_win, data = train, family = binomial(link="logit"))
+binlog_model <- glm(offense_win_formula, data = train, family = binomial(link="logit"))
+
+```
+
+Here I train a couple of models.
+
+```{r}
+rfTrain <- train
+rfTrain$offense_win <- factor(rfTrain$offense_win)
+
+#random forest
+rf <- randomForest(offense_win_formula, data=rfTrain, ntree=50)
+rf50 <- randomForest(offense_win_formula, data=rfTrain, ntree=50)
+
+rf60 <- randomForest(offense_win_formula, data=rfTrain, ntree=60)
+
+#bagging
+b60 <- randomForest(offense_win_formula, data=rfTrain, ntree=60, mtry=7)
 
 ```
 
 
+
+```{r}
+tree_model <- tree(offense_win_formula, data = train)
+plot(tree_model)
+text(tree_model)
+```

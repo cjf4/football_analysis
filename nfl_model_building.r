@@ -3,7 +3,7 @@ library(dplyr)
 library(randomForest)
 library(tree)
 
-nfl_data <- read.csv("game_data.csv", stringsAsFactors = FALSE)
+nfl_data <- read.csv("data/game_data.csv", stringsAsFactors = FALSE)
 
 filter(nfl_data, is.na(home_score))
 nfl_data <- nfl_data[-114849,]
