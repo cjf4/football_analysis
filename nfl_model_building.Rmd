@@ -10,7 +10,7 @@ library(ggplot2)
 library(dplyr)
 library(randomForest)
 library(tree)
-setwd(getwd())
+
 
 nfl_data <- read.csv("data/game_data.csv", stringsAsFactors = FALSE)
 
@@ -77,7 +77,7 @@ b60 <- randomForest(offense_win_formula, data=rfTrain, ntree=60, mtry=7)
 ```
 
 
-
+This visualizes a decision tree to provide a gist of what I am trying to do.
 ```{r}
 tree_model <- tree(offense_win_formula, data = train)
 plot(tree_model)

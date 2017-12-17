@@ -1,0 +1,38 @@
+## TO DO
+
+1. Build second train/test dataset that goes based off of offense/defense score rather than home/away
+
+2. Apply K-folds cross validation (only needed for logistic regression, random forest accomplishes the same result)
+
+3. Build RF Model with a variety of different ntree sizes
+
+4. Build bagging model (where m feature choices = p predictors at each cut)
+
+5. (Optional) Build logistic regression model.
+
+6. Use built models to fit to TEST data and predict outcomes
+
+7. measure outcome success and compare against each other
+	-k folds of 5-10 range yields optimal bias variance trade off, could use for logistic regression
+
+8. select model and build "binning" example, where WPs are binned in .05 increments, and compared to actuall results for that bin.
+	-simply predict the team thats winning every time
+	-also can compare models to simply predicting the team that's winning each time.
+
+9. Fit WP to all data
+
+10. Calculate WPA for each play
+
+11. Pull in stats necessary for Passer Rating
+
+12. Select a subset of games
+
+13. caluclate total passer rating for those games, and total WPA of passing plays for those games
+
+14. compare which has a stronger correlative effect.
+
+
+
+NOTES
+
+-Other approach could include KNN clustering with a large amount of clusters, and calculating the WP for each cluster
