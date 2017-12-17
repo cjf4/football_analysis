@@ -1,7 +1,8 @@
 source('~/cuny_masters/DATA_698/data/secret.r')
 require("RPostgreSQL")
 require("dplyr")
-
+require("psych")
+require("reshape")
 drv <- dbDriver("PostgreSQL")
 con <- dbConnect(drv, dbname = "nfldb",
                  host = "localhost", port = 5432,
@@ -92,3 +93,51 @@ for (i in 1:nrow(passer_rating_comparison)) {
 }
 
 passer_stats <-left_join(passer_rating_comparison, players)
+
+passer_st_team <- filter(passer_stats, passing_att >4, team != "UNK")
+
+
+#need to get the result of each game
+
+game_frame <- nfl_data %>%
+                  select(gsis_id, home_win, home_team, away_team, season_year) %>%
+                  group_by(gsis_id, home_team, away_team, season_year) %>%
+                  summarise(home_winner = mean(home_win))
+
+passer_st_team <- left_join(passer_st_team, game_frame)
+
+passer_st_team$win <- ifelse((passer_st_team$team == passer_st_team$home_team) & (passer_st_team$home_winner ==1),
+                          1,
+                         ifelse((passer_st_team$team == passer_st_team$home_team) & (passer_st_team$home_winner ==0),
+                                0,
+                                ifelse((passer_st_team$team == passer_st_team$away_team) & (passer_st_team$home_winner ==1),
+                                       0,
+                                       ifelse((passer_st_team$team == passer_st_team$away_team) & (passer_st_team$home_winner ==0),
+                                              1,
+                                              NA))))
+
+passer_st_team <- na.omit(passer_st_team)
+
+
+comparison_frame <- select(passer_st_team, passer_rating, total_wpa, win)
+
+cor(comparison_frame$total_wpa, comparison_frame$passer_rating)
+
+#scale and center the distributions
+scaled <- scale(comparison_frame[,2:3])
+cor(scaled[,1], scaled[,2])
+
+comparison_frame$scaled_wpa <- scaled[,1]
+comparison_frame$scaled_pr <- scaled[,2]
+
+#distributions are properly scaled
+density_data <- melt(comparison_frame[,5:6])
+ggplot(density_data, aes(x=value, fill= variable)) + geom_density(alpha = .2)
+
+grouped_cf <-- comparison_frame %>%
+                select(win, scaled_wpa, scaled_pr) %>%
+                group_by(win) %>%
+                summarise(mean_scaled_wpa = mean(scaled_wpa),
+                          mean_scaled_pr = mean(scaled_pr))
+
+table(comparison_frame$win, mean(comparison_frame$scaled_wpa))
