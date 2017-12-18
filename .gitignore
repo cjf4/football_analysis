@@ -1,8 +1,10 @@
+model_workspace.RData
 secret.r
 
 # History files
 .Rhistory
 .Rapp.history
+model_workspace.RData
 
 # Session Data files
 .RData
