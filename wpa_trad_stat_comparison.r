@@ -141,3 +141,6 @@ grouped_cf <-- comparison_frame %>%
                           mean_scaled_pr = mean(scaled_pr))
 
 table(comparison_frame$win, mean(comparison_frame$scaled_wpa))
+
+write.csv(comparison_frame, "data/comparison_frame.csv")
+write.csv(passer_st_team, "data/passer_rating_data.csv")
