@@ -103,6 +103,9 @@ rf50_err_rate <- tail(rf$err.rate[,1], n=1)
 rf100 <- randomForest(offense_win_formula, data=train, ntree=100)
 rf100_err_rate <- tail(rf$err.rate[,1], n=1)
 
+rf250 <- randomForest(offense_win_formula, data=train, ntree=250)
+
+
 rf500 <- randomForest(offense_win_formula, data=train, ntree=500)
 rf500_err_rate <- tail(rf$err.rate[,1], n=1)
 
@@ -123,7 +126,9 @@ b50_err_rate <- tail(rf$err.rate[,1], n=1)
 b100 <- randomForest(offense_win_formula, data=train, ntree=100, mtry=6)
 b100_err_rate <- tail(rf$err.rate[,1], n=1)
 
-b500 <- randomForest(offense_win_formula, data=train, ntree=500, mtry=6)
+b250 <- randomForest(offense_win_formula, data=train, ntree=250, mtry=6)
+
+bb500 <- randomForest(offense_win_formula, data=train, ntree=500, mtry=6)
 b500_err_rate <- tail(rf$err.rate[,1], n=1)
 
 
@@ -190,4 +195,4 @@ binned_log_reg <- test %>%
 
 write.csv(binned_log_reg[,2], "3_year_data_log_reg.csv")
 
-saveRDS()
+
