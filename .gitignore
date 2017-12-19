@@ -1,5 +1,10 @@
+git filter-branch --force --index-filter \
+'git rm --cached --ignore-unmatch model_workspace.RData \
+--prune-empty --tag-name-filter cat -- --all
+
 model_workspace.RData
 secret.r
+.DS_Store
 
 # History files
 .Rhistory
